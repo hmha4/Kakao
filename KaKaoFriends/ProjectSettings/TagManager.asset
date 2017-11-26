@@ -12,6 +12,9 @@ TagManager:
   - C
   - M
   - J
+  - B
+  - D
+  - E
   layers:
   - Default
   - TransparentFX

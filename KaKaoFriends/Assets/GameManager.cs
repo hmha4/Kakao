@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour {
+    public GameObject tile;
+    public int m;
+    public int n;
     Queue<Vector2> q = new Queue<Vector2>();
-    Transform[,] block = new Transform[6, 6];
-    int[,] map = new int[6, 6];
-    public string[] str = new string[6];
+    Transform[,] block;
+    int[,] map;
+    public string[] str;
     string[] splitStr;
-    bool[,] isSquare = new bool[6,6];
+    bool[,] isSquare;
 
     //[0]→ : (1, 0), [4]← : (-1, 0), [6]↑ : (0, 1), [2]↓ : (0, -1)
     //[1]↘ : (1, -1), [7]↗ : (1, 1), [5]↖ : (-1, 1), [3]↙ : (-1, -1)
@@ -19,20 +22,32 @@ public class GameManager : MonoBehaviour {
 
     int count = 0;
 
-    int num = 5;
+    int num;
 
+    private void Awake()
+    {
+        block = new Transform[m, n];
+        map = new int[m, n];
+        isSquare = new bool[m, n];
+
+        num = m - 1;
+    }
     // Use this for initialization
     void Start () {
-        for (int i = 0; i < 6; i++)
+        for (int i = 0; i < m; i++)
         {
             if(num >= 0)
             { 
                 splitStr = str[num].Split(',');
                 num--;
             }
-            for(int j = 0; j < 6; j++)
+            for(int j = 0; j < n; j++)
             {
-                block[i, j] = GameObject.Find("GameObject (" + i + ")").transform.Find("Quad (" + j + ")");
+                GameObject instance = Instantiate(tile);
+                instance.transform.position = new Vector2(j, i);
+                //block[i, j] = GameObject.Find("GameObject (" + i + ")").transform.Find("Quad (" + j + ")");
+                //block[i, j] = instance.transform.Find("Quad (" + j + ")");
+                block[i, j] = instance.transform;
                 block[i, j].gameObject.tag = splitStr[j];
                 map[i, j] = 0;
                 isSquare[i, j] = false;
@@ -53,6 +68,12 @@ public class GameManager : MonoBehaviour {
                     block[i, j].gameObject.GetComponent<MeshRenderer>().material.color = new Color(25, 0, 0);
                 if (block[i, j].gameObject.CompareTag("J"))
                     block[i, j].gameObject.GetComponent<MeshRenderer>().material.color = new Color(0, 25, 0);
+                if (block[i, j].gameObject.CompareTag("B"))
+                    block[i, j].gameObject.GetComponent<MeshRenderer>().material.color = new Color(0, 0, 25);
+                if (block[i, j].gameObject.CompareTag("D"))
+                    block[i, j].gameObject.GetComponent<MeshRenderer>().material.color = new Color(25, 0, 25);
+                if (block[i, j].gameObject.CompareTag("E"))
+                    block[i, j].gameObject.GetComponent<MeshRenderer>().material.color = new Color(25, 25, 25);
             }
         }
         
@@ -62,7 +83,6 @@ public class GameManager : MonoBehaviour {
 	void Update () {
         if (Input.GetButtonDown("Fire1"))
         {
-            count = 0;
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
 
@@ -86,7 +106,7 @@ public class GameManager : MonoBehaviour {
                         int newHitPointY = (int)hitPoint.y + directionY[i];
                         Vector2 newPoint = new Vector2(newHitPointX, newHitPointY);
 
-                        if (newHitPointX >= 0 && newHitPointX <= 5 && newHitPointY >= 0 && newHitPointY <= 5)
+                        if (newHitPointX >= 0 && newHitPointX <= m - 1 && newHitPointY >= 0 && newHitPointY <= m - 1)
                         {
                             if (block[newHitPointY, newHitPointX].gameObject.activeSelf)
                             {
@@ -100,9 +120,9 @@ public class GameManager : MonoBehaviour {
                     }
                 }
             }
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < m - 1; i++)
             {
-                for (int j = 0; j < 5; j++)
+                for (int j = 0; j < m - 1; j++)
                 {
                     if(map[i,j] != 0 && map[i,j] == map[i,j + 1] && map[i,j] == map[i+1, j] && map[i,j] == map[i+1, j+1])
                     {
@@ -117,21 +137,22 @@ public class GameManager : MonoBehaviour {
             
             
         }
-        for (int i = 0; i < 6; i++)
+        for (int i = 0; i < m; i++)
         {
-            for (int j = 0; j < 6; j++)
+            for (int j = 0; j < m; j++)
             {
                 if (isSquare[i, j] == true)
                 {
+                    count++;
                     block[i, j].gameObject.SetActive(false);
                     isSquare[i, j] = false;
                 }
                 map[i, j] = 0;
             }
         }
-        for (int i = 5; i > 0; i--)
+        for (int i = m - 1; i > 0; i--)
         {
-            for (int j = 0; j < 6; j++)
+            for (int j = 0; j < m; j++)
             {
                 if (block[i, j].gameObject.activeSelf == true)
                 {
@@ -146,6 +167,7 @@ public class GameManager : MonoBehaviour {
                 }
             }
         }
+        print(count);
     }
     
 }
