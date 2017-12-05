@@ -8,6 +8,7 @@ public class GameManager : MonoBehaviour {
     public int n;
     Queue<Vector2> q = new Queue<Vector2>();
     Transform[,] block;
+    Vector2[,] blockPos;
     int[,] map;
     public string[] str;
     string[] splitStr;
@@ -27,6 +28,7 @@ public class GameManager : MonoBehaviour {
     private void Awake()
     {
         block = new Transform[m, n];
+        blockPos = new Vector2[m, n];
         map = new int[m, n];
         isSquare = new bool[m, n];
 
@@ -48,6 +50,7 @@ public class GameManager : MonoBehaviour {
                 //block[i, j] = GameObject.Find("GameObject (" + i + ")").transform.Find("Quad (" + j + ")");
                 //block[i, j] = instance.transform.Find("Quad (" + j + ")");
                 block[i, j] = instance.transform;
+                blockPos[i, j] = block[i, j].position;
                 block[i, j].gameObject.tag = splitStr[j];
                 map[i, j] = 0;
                 isSquare[i, j] = false;
@@ -94,7 +97,7 @@ public class GameManager : MonoBehaviour {
                 map[(int)hitPoint.y, (int)hitPoint.x] = 1;
                 
 
-                print("(" + hitPoint.x + ", " + hitPoint.y + ")");
+                //print("(" + hitPoint.x + ", " + hitPoint.y + ")");
 
                 while(q.Count != 0)
                 {
@@ -159,15 +162,22 @@ public class GameManager : MonoBehaviour {
                     if (block[i - 1, j].gameObject.activeSelf == false)
                     {
                         Transform temp;
-                        block[i, j].position = new Vector2(j, i - 1);
-                        temp = block[i - 1, j];
-                        block[i - 1, j] = block[i, j];
-                        block[i, j] = temp;
+                        
+                        block[i, j].Translate(0, -0.1f, 0);
+
+                        if ((Vector2)block[i, j].position == blockPos[i - 1, j])
+                        {
+                            temp = block[i - 1, j];
+                            block[i - 1, j] = block[i, j];
+                            block[i, j] = temp;
+                            break;
+                        }
                     }
                 }
             }
         }
-        print(count);
+        
+        //print(count);
     }
     
 }
